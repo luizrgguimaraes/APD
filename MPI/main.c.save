@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <mpi.h>
+
+#define TAM 6
+
+void mestre(int size,int tag){
+	int vetor[TAM] = {5,6,7,8,1,4};
+	int soma, somaParcial;
+	for(int dest=0;dest<size-1;dest++){
+		MPI_Send(vetor+(dest*2), 2, MPI_INT, dest+1, tag, MPI_COMM_WORLD);
+	}
+
+	for(int dest=0;dest<size-1;dest++){
+	}
+
+}
+void escravo(int rank,int size,int tag){
+	MPI_Status status;
+	int vetor[2];
+	int source;
+	MPI_Recv(vetor,2,MPI_INT,0,tag,MPI_COMM_WORLD,&status);
+	int soma = vetor[0]+vetor[1];
+	//printf("Processor %d/%d - soma = %d\n",rank,size,soma);		
+	MPI_Send(&soma, 1, MPI_INT, 0, tag, MPI_COMM_WORLD);
+	
+}
+
+int main(int argc, char **argv){
+	int size;
+	int rank;
+	int length;
+	char name[80];
+	char newname[80];
+	int dest = 0;
+	int tag = 999;
+		
+	MPI_Init(&argc,&argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	printf("Inicio da Execucao %d/%d\n",rank,size);
+		
+	if(rank==0){
+		mestre(size,tag);
+	}else{
+		escravo(rank,size,tag);
+	}
+	printf("Fim da Execucao %d/%d\n",rank,size);
+	MPI_Finalize();
+	return 0;
+}	
+int mainExemploMensagem(int argc, char **argv){
+	int size;
+	int rank;
+	int length;
+	char name[80];
+	char newname[80];
+	int dest = 0;
+	int tag = 999;
+		
+	MPI_Init(&argc,&argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	
+	if(rank>0){
+		MPI_Get_processor_name(name,&length);
+		snprintf(newname,80,"%s-%d",name,rank);
+		MPI_Send(newname, 80, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+	}else{
+		MPI_Status status;
+		int source;
+		for(source = 1; source < size; source++){
+			MPI_Recv(name,80,MPI_CHAR,source,tag,MPI_COMM_WORLD,&status);
+			printf("Menssage from %d/%d: %s\n",source, size,name);
+		}
+	}
+	
+
+
+
+
+	printf("Fim da Execucao %d/%d\n",rank,size);
+	MPI_Finalize();
+	return 0;
+}
