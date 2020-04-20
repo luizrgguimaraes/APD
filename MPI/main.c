@@ -99,6 +99,30 @@ int mainExemploMensagem(int argc, char **argv){
 	MPI_Finalize();
 	return 0;
 }
+int mainMaiorElemento(int argc, char **argv){
+	int size;
+	int rank;
+	int length;
+	char name[80];
+	char newname[80];
+	int dest = 0;
+	int tag = 999;
+		
+	MPI_Init(&argc,&argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	//printf("Inicio da Execucao %d/%d\n",rank,size);
+		
+	if(rank==0){
+		mestreMaiorElemento(size,tag);
+	}else{
+		escravoMaiorElemento(rank,size,tag);
+	}
+	//printf("Fim da Execucao %d/%d\n",rank,size);
+	MPI_Finalize();
+	return 0;
+}	
+
 void mestreSomaVetor(int size,int tag){
 	MPI_Status status;
 	int vetor[TAM] = {5,6,7,8,1,4,7,2,5,4,0,1};
