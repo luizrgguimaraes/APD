@@ -14,7 +14,7 @@ RESULTADO ESPERADO = 20 30 40 50
 #include <stdio.h>
 #include <mpi.h>
 
-#define TAM 4
+#define TAM 8
 
 
 void printMatriz(int matriz[TAM][TAM],int n,int m){
@@ -35,7 +35,6 @@ void printVetor(int vetor[TAM],int n){
 int main(int argc, char **argv){
 	int size;
 	int rank;
-	int length;
 	char name[80];
 	char newname[80];
 	int dest = 0;
@@ -46,8 +45,8 @@ int main(int argc, char **argv){
 			matriz[i][j]=i+j;
 		}
 	}
-	
-	int vetor[TAM] = {1,2,3,4};
+	//printMatriz(matriz,TAM,TAM);
+	int vetor[TAM] = {1,2,3,4,5,6,7,8};
 	int x[TAM];
 	int y[TAM];
 	MPI_Init(&argc,&argv);
