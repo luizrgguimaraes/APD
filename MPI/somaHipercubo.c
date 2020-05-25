@@ -3,7 +3,7 @@
 #include <string.h>
 #include <mpi.h>
 
-#define TAM 4
+#define TAM 16
 //numero de dimensoes
 
 void printMatriz(int matriz[TAM][TAM],int N){
@@ -62,38 +62,43 @@ int potencia(int b, int e){
 
 int main(int argc, char **argv){
 
-	int vetor[TAM*TAM] = {5,6,7,8};
-
-	int size, rank, tag=999, saida[2], entrada, dest, rem;
+	int vetor[TAM] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	int *p = vetor;
+	int size, rank, tag=999, saida, entrada, dest, rem;
 
 	MPI_Init(&argc, &argv);
 	MPI_Status status;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	//int r = TAM*TAM/size;
-	int valor = vetor[rank];
-	int nivel = size/2;//size/log TAM na base 2
 
-	
+	int valor = 0;
+	int nivel = 2;//nivel maximo dos processadores. Só foi possivel até o nivel 2, visto que só temos 4 processadores
+	int r = TAM/size;
+
 	while(nivel>=1){
 		dest = rank-nivel;
 		rem = rank+nivel;
 		if(rank>=nivel){
-			MPI_Send(&valor,1,MPI_INT,dest,tag,MPI_COMM_WORLD);
-			//printf("nivel %d P%d send %d to %d\n",nivel,rank,valor,dest);
+			saida=0;
+			for(int i=0;i<r;i++){
+				saida+=vetor[rank*r+i];
+			}
+			MPI_Send(&saida,1,MPI_INT,dest,tag,MPI_COMM_WORLD);
+//			printf("Nivel %d P%d send %d to P%d\n",nivel,rank,saida,dest);
 			nivel=0;
 		}else{
-			//printf("nivel %d P%d received from %d\n",nivel,rank,rem);
 			MPI_Recv(&entrada,1,MPI_INT,rem,tag,MPI_COMM_WORLD,&status);
-			valor+=entrada;
+			vetor[rank*r]+=entrada;
+//			printf("nivel %d P%d received %d from %d and vetor[%d]=%d\n",nivel,rank,entrada,rem,rank*r,vetor[rank*r]);
+//			print(vetor,"");
 			nivel--;
 		}
 	}
-	//for(int i=rank;rank>0&&i<)
-
-				//printf("P%d send soma[%d][%d]=%d\n",rank,linha,coluna,soma);
 	if(rank==0){
-		printf("Soma Final = %d\n",valor);
+		for(int i=1;i<r;i++){
+			vetor[0]+=vetor[i];
+		}
+		printf("Soma Final = %d\n",vetor[0]);
 	}
 	MPI_Finalize();
 	return 0;
