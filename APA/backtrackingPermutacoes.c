@@ -11,13 +11,19 @@ void escreva(int *s){
 	printf("\n");
 }
 
-void mostraSequencias(int *s,int i, int *v, int n){
-	if(i == n){
+void permutacao(int *s,int i, int *v, int n,int *x){
+	if(i == TAM	){
 		escreva(s);
 	}else{
 		for(int j=0;j<n;j++){
-			s[i] = v[j];
-			mostraSequencias(s,i+1,v,n);
+			if(x[j]==0){
+				x[j]=1;
+				s[i]=v[j];
+				permutacao(s,i+1,v,n,x);
+				x[j]=0;
+
+			}
+
 		}
 	}
 }
@@ -27,13 +33,15 @@ void mostraSequencias(int *s,int i, int *v, int n){
 int main(){
 	
 	int s[TAM];
+	int x[TAM];
 	int v[TAM];
 	for(int i=0;i<TAM;i++){
 		s[i]=0;
+		x[i]=0;
 		v[i]=i+1;
 	}
-	
-	mostraSequencias(s,0,v,TAM);
+
+	permutacao(s,0,v,TAM,x);
 
 
 	return 0;
